@@ -32,4 +32,12 @@ public class ReservationController {
     ) {
         reservationService.release(requestId);
     }
+
+    @PostMapping("/{requestId}/accept")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void accept(
+            @PathVariable UUID requestId
+    ) {
+        reservationService.accept(requestId);
+    }
 }
