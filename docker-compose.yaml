@@ -1,0 +1,16 @@
+services:
+  inventory-postgres:
+    image: postgres:18
+    container_name: inventory-postgres
+    environment:
+      POSTGRES_DB: inventory_db
+      POSTGRES_USER: samar
+      POSTGRES_PASSWORD: samar
+    ports:
+      - "5435:5432"
+    volumes:
+      - inventory_postgres_data:/var/lib/postgresql
+    restart: unless-stopped
+
+volumes:
+  inventory_postgres_data:
