@@ -20,15 +20,12 @@ public class VariantEventConsumer {
     private static final String RETRY_COUNT_HEADER =
             "x-inventory-retry-count";
 
-    /*
-     * Maximum number of retries after the initial attempt.
-     */
+
+    //Maximum number of retries after the initial attempt.
+
     private static final int MAX_RETRIES = 3;
 
-    /*
-     * Retry delay is configured in RabbitMQConfig:
-     * 5 seconds.
-     */
+    //Retry delay is configured in RabbitMQConfig: 5 seconds.
 
     private final ObjectMapper objectMapper;
     private final InventoryService inventoryService;
