@@ -15,11 +15,7 @@ import org.springframework.stereotype.Service;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -126,6 +122,12 @@ public class ReservationService {
             );
         }
 
+        if (reservation.getStatus() == ReservationStatus.ACCEPTED) {
+            throw new IllegalArgumentException(
+                    "Cannot release an accepted reservation: " + requestId
+            );
+        }
+
         List<ReservationItem> items;
 
         try {
@@ -172,6 +174,94 @@ public class ReservationService {
 
         reservation.setStatus(
                 ReservationStatus.RELEASED
+        );
+
+        reservationRepository.save(reservation);
+    }
+
+    @Transactional
+    public void accept(UUID requestId) {
+
+        Reservation reservation =
+                reservationRepository
+                        .findByRequestId(requestId)
+                        .orElseThrow(() ->
+                                new IllegalArgumentException(
+                                        "Reservation not found: "
+                                                + requestId
+                                )
+                        );
+
+        if (reservation.getStatus() == ReservationStatus.ACCEPTED) {
+            throw new IllegalArgumentException(
+                    "Reservation is already accepted: "
+                            + requestId
+            );
+        }
+
+        if (reservation.getStatus() == ReservationStatus.RELEASED) {
+            throw new IllegalArgumentException(
+                    "Cannot accept a released reservation: "
+                            + requestId
+            );
+        }
+
+        List<ReservationItem> items;
+
+        try {
+            items = objectMapper.readValue(
+                    reservation.getItems(),
+                    new TypeReference<List<ReservationItem>>() {}
+            );
+        } catch (Exception e) {
+            throw new IllegalStateException(
+                    "Unable to read reservation items",
+                    e
+            );
+        }
+
+        for (ReservationItem item : items) {
+
+            Inventory inventory =
+                    inventoryRepository
+                            .findBySku(item.sku())
+                            .orElseThrow(() ->
+                                    new IllegalArgumentException(
+                                            "Inventory not found for SKU: "
+                                                    + item.sku()
+                                    )
+                            );
+
+            int newReservedQuantity =
+                    inventory.getReservedQuantity()
+                            - item.quantity();
+
+            if (newReservedQuantity < 0) {
+                throw new IllegalStateException(
+                        "Reserved quantity cannot become negative for SKU: "
+                                + item.sku()
+                );
+            }
+
+            int newQuantity =
+                    inventory.getQuantity()
+                            - item.quantity();
+
+            if (newQuantity < 0) {
+                throw new IllegalStateException(
+                        "Inventory quantity cannot become negative for SKU: "
+                                + item.sku()
+                );
+            }
+
+            inventory.setQuantity(newQuantity);
+            inventory.setReservedQuantity(newReservedQuantity);
+
+            inventoryRepository.save(inventory);
+        }
+
+        reservation.setStatus(
+                ReservationStatus.ACCEPTED
         );
 
         reservationRepository.save(reservation);
