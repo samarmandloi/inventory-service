@@ -31,7 +31,7 @@ services:
       RABBITMQ_PORT: "5672"
       RABBITMQ_USERNAME: "${RABBITMQ_USERNAME:-guest}"
       RABBITMQ_PASSWORD: "${RABBITMQ_PASSWORD:-guest}"
-      EUREKA_URL: "http://host.docker.internal:8761/eureka/"
+      EUREKA_URL: "http://eureka-server:8761/eureka/"
       BUGSNAG_API_KEY: "${BUGSNAG_API_KEY:-}"
 
 volumes:
