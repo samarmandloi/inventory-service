@@ -17,10 +17,10 @@ spring:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
   rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
     listener:
       simple:
         acknowledge-mode: auto
@@ -36,3 +36,8 @@ springdoc:
 
 bugsnag:
   api-key: ${BUGSNAG_API_KEY:}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
