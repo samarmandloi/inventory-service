@@ -17,13 +17,26 @@ spring:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
   rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
     listener:
       simple:
         acknowledge-mode: auto
+
+inventory:
+  rabbitmq:
+    variant-queue: ${INVENTORY_VARIANT_QUEUE:inventory.variant.queue}
+    retry-exchange: ${INVENTORY_RETRY_EXCHANGE:inventory.retry.exchange}
+    retry-queue: ${INVENTORY_RETRY_QUEUE:inventory.variant.retry.queue}
+    retry-routing-key: ${INVENTORY_RETRY_ROUTING_KEY:variant.retry}
+    dlq-exchange: ${INVENTORY_DLQ_EXCHANGE:inventory.dlq.exchange}
+    dlq-queue: ${INVENTORY_DLQ_QUEUE:inventory.variant.dlq}
+    dlq-routing-key: ${INVENTORY_DLQ_ROUTING_KEY:variant.dlq}
+    product-exchange: ${PRODUCT_EXCHANGE:product.exchange}
+    product-routing-key: ${PRODUCT_ROUTING_KEY:variant.event}
+    retry-ttl: ${INVENTORY_RETRY_TTL:5000}
 
 server:
   port: 8081
@@ -36,3 +49,5 @@ springdoc:
 
 bugsnag:
   api-key: ${BUGSNAG_API_KEY:}
+  app-version: ${BUGSNAG_APP_VERSION:0.0.1}
+  release-stage: ${BUGSNAG_RELEASE_STAGE:development}

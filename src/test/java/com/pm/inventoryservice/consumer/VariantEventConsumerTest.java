@@ -1,8 +1,9 @@
 package com.pm.inventoryservice.consumer;
 
-import com.pm.inventoryservice.config.RabbitMQConfig;
+import com.pm.inventoryservice.config.RabbitMQProperties;
 import com.pm.inventoryservice.dto.VariantEventDto;
 import com.pm.inventoryservice.service.InventoryService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -23,6 +24,11 @@ class VariantEventConsumerTest {
     private static final String RETRY_COUNT_HEADER =
             "x-inventory-retry-count";
 
+    private static final String RETRY_EXCHANGE = "test-retry-exchange";
+    private static final String RETRY_ROUTING_KEY = "test-retry-routing-key";
+    private static final String DLQ_EXCHANGE = "test-dlq-exchange";
+    private static final String DLQ_ROUTING_KEY = "test-dlq-routing-key";
+
     @Mock
     private ObjectMapper objectMapper;
 
@@ -32,9 +38,23 @@ class VariantEventConsumerTest {
     @Mock
     private RabbitTemplate rabbitTemplate;
 
+    @Mock
+    private RabbitMQProperties rabbitMQProperties;
+
     @InjectMocks
     private VariantEventConsumer variantEventConsumer;
 
+    @BeforeEach
+    void setUp() {
+        lenient().when(rabbitMQProperties.retryExchange())
+                .thenReturn(RETRY_EXCHANGE);
+        lenient().when(rabbitMQProperties.retryRoutingKey())
+                .thenReturn(RETRY_ROUTING_KEY);
+        lenient().when(rabbitMQProperties.dlqExchange())
+                .thenReturn(DLQ_EXCHANGE);
+        lenient().when(rabbitMQProperties.dlqRoutingKey())
+                .thenReturn(DLQ_ROUTING_KEY);
+    }
 
     @Test
     void consume_shouldProcessEventSuccessfully() throws Exception {
@@ -100,8 +120,8 @@ class VariantEventConsumerTest {
 
         verify(rabbitTemplate)
                 .send(
-                        eq(RabbitMQConfig.RETRY_EXCHANGE),
-                        eq(RabbitMQConfig.RETRY_ROUTING_KEY),
+                        eq(RETRY_EXCHANGE),
+                        eq(RETRY_ROUTING_KEY),
                         any(Message.class)
                 );
     }
@@ -141,8 +161,8 @@ class VariantEventConsumerTest {
 
         verify(rabbitTemplate)
                 .send(
-                        eq(RabbitMQConfig.RETRY_EXCHANGE),
-                        eq(RabbitMQConfig.RETRY_ROUTING_KEY),
+                        eq(RETRY_EXCHANGE),
+                        eq(RETRY_ROUTING_KEY),
                         messageCaptor.capture()
                 );
 
@@ -199,8 +219,8 @@ class VariantEventConsumerTest {
 
         verify(rabbitTemplate)
                 .send(
-                        eq(RabbitMQConfig.RETRY_EXCHANGE),
-                        eq(RabbitMQConfig.RETRY_ROUTING_KEY),
+                        eq(RETRY_EXCHANGE),
+                        eq(RETRY_ROUTING_KEY),
                         messageCaptor.capture()
                 );
 
@@ -254,15 +274,15 @@ class VariantEventConsumerTest {
 
         verify(rabbitTemplate)
                 .send(
-                        eq(RabbitMQConfig.DLQ_EXCHANGE),
-                        eq(RabbitMQConfig.DLQ_ROUTING_KEY),
+                        eq(DLQ_EXCHANGE),
+                        eq(DLQ_ROUTING_KEY),
                         eq(message)
                 );
 
         verify(rabbitTemplate, never())
                 .send(
-                        eq(RabbitMQConfig.RETRY_EXCHANGE),
-                        eq(RabbitMQConfig.RETRY_ROUTING_KEY),
+                        eq(RETRY_EXCHANGE),
+                        eq(RETRY_ROUTING_KEY),
                         any(Message.class)
                 );
     }
@@ -308,8 +328,8 @@ class VariantEventConsumerTest {
 
         verify(rabbitTemplate)
                 .send(
-                        eq(RabbitMQConfig.RETRY_EXCHANGE),
-                        eq(RabbitMQConfig.RETRY_ROUTING_KEY),
+                        eq(RETRY_EXCHANGE),
+                        eq(RETRY_ROUTING_KEY),
                         messageCaptor.capture()
                 );
 

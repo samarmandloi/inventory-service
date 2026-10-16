@@ -1,6 +1,6 @@
 package com.pm.inventoryservice.consumer;
 
-import com.pm.inventoryservice.config.RabbitMQConfig;
+import com.pm.inventoryservice.config.RabbitMQProperties;
 import com.pm.inventoryservice.dto.VariantEventDto;
 import com.pm.inventoryservice.service.InventoryService;
 import lombok.RequiredArgsConstructor;
@@ -20,18 +20,16 @@ public class VariantEventConsumer {
     private static final String RETRY_COUNT_HEADER =
             "x-inventory-retry-count";
 
-
-    //Maximum number of retries after the initial attempt.
-
+    // Maximum number of retries after the initial attempt.
     private static final int MAX_RETRIES = 3;
 
-    //Retry delay is configured in RabbitMQConfig: 5 seconds.
-
+    // Retry delay is configured in RabbitMQConfig: 5 seconds.
     private final ObjectMapper objectMapper;
     private final InventoryService inventoryService;
     private final RabbitTemplate rabbitTemplate;
+    private final RabbitMQProperties rabbitMQProperties;
 
-    @RabbitListener(queues = RabbitMQConfig.VARIANT_QUEUE)
+    @RabbitListener(queues = "${inventory.rabbitmq.variant-queue}")
     public void consume(Message message) {
 
         try {
@@ -83,8 +81,8 @@ public class VariantEventConsumer {
                             .build();
 
             rabbitTemplate.send(
-                    RabbitMQConfig.RETRY_EXCHANGE,
-                    RabbitMQConfig.RETRY_ROUTING_KEY,
+                    rabbitMQProperties.retryExchange(),
+                    rabbitMQProperties.retryRoutingKey(),
                     retryMessage
             );
 
@@ -100,8 +98,8 @@ public class VariantEventConsumer {
         } else {
 
             rabbitTemplate.send(
-                    RabbitMQConfig.DLQ_EXCHANGE,
-                    RabbitMQConfig.DLQ_ROUTING_KEY,
+                    rabbitMQProperties.dlqExchange(),
+                    rabbitMQProperties.dlqRoutingKey(),
                     message
             );
 
