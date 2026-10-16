@@ -5,7 +5,6 @@ import com.pm.inventoryservice.entity.Inventory;
 import com.pm.inventoryservice.repository.InventoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -13,7 +12,6 @@ public class InventoryService {
 
     private final InventoryRepository inventoryRepository;
 
-    @Transactional
     public void processVariantEvent(VariantEventDto event) {
 
         switch (event.eventType()) {
