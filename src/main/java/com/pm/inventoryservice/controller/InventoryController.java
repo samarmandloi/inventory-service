@@ -1,5 +1,6 @@
 package com.pm.inventoryservice.controller;
 
+import com.pm.inventoryservice.dto.responseDto.InventoryResponse;
 import com.pm.inventoryservice.dto.responseDto.PageResponse;
 import com.pm.inventoryservice.service.InventoryService;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/inventory")
@@ -21,7 +21,7 @@ public class InventoryController {
     private final InventoryService inventoryService;
 
     @GetMapping
-    public PageResponse<Map<String, Object>> getInventory(
+    public PageResponse<InventoryResponse> getInventory(
             @RequestParam List<String> skus,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size

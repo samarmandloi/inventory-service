@@ -1,6 +1,7 @@
 package com.pm.inventoryservice.service;
 
 import com.pm.inventoryservice.dto.VariantEventDto;
+import com.pm.inventoryservice.dto.responseDto.InventoryResponse;
 import com.pm.inventoryservice.dto.responseDto.PageResponse;
 import com.pm.inventoryservice.entity.Inventory;
 import com.pm.inventoryservice.repository.InventoryRepository;
@@ -8,11 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -20,7 +18,6 @@ public class InventoryService {
 
     private final InventoryRepository inventoryRepository;
 
-    @Transactional
     public void processVariantEvent(VariantEventDto event) {
 
         switch (event.eventType()) {
@@ -62,7 +59,7 @@ public class InventoryService {
         );
     }
 
-    public PageResponse<Map<String, Object>> getInventory(
+    public PageResponse<InventoryResponse> getInventory(
             List<String> skus,
             Pageable pageable
     ) {
@@ -72,23 +69,14 @@ public class InventoryService {
                         pageable
                 );
 
-        List<Map<String, Object>> content =
+        List<InventoryResponse> content =
                 inventoryPage.getContent()
                         .stream()
-                        .map(inventory -> {
-
-                            Map<String, Object> map = new HashMap<>();
-
-                            map.put("sku", inventory.getSku());
-
-                            map.put(
-                                    "availableQuantity",
-                                    inventory.getQuantity()
-                                            - inventory.getReservedQuantity()
-                            );
-
-                            return map;
-                        })
+                        .map(inventory -> new InventoryResponse(
+                                inventory.getSku(),
+                                inventory.getQuantity()
+                                        - inventory.getReservedQuantity()
+                        ))
                         .toList();
 
         return new PageResponse<>(

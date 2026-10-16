@@ -14,8 +14,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
+import com.pm.inventoryservice.exception.ReservationConflictException;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -159,7 +165,7 @@ public class ReservationService {
                             - item.quantity();
 
             if (newReservedQuantity < 0) {
-                throw new IllegalStateException(
+                throw new ReservationConflictException(
                         "Reserved quantity cannot become negative for SKU: "
                                 + item.sku()
                 );
@@ -220,21 +226,17 @@ public class ReservationService {
             );
         }
 
-        for (ReservationItem item : items) {
-
-            Inventory inventory =
-                    inventoryRepository
-                            .findBySku(item.sku())
-                            .orElseThrow(() ->
-                                    new IllegalArgumentException(
-                                            "Inventory not found for SKU: "
-                                                    + item.sku()
-                                    )
-                            );
+        items.stream().forEach(item -> {
+            Inventory inventory = inventoryRepository
+                    .findBySku(item.sku())
+                    .orElseThrow(() ->
+                            new IllegalArgumentException(
+                                    "Inventory not found for SKU: " + item.sku()
+                            )
+                    );
 
             int newReservedQuantity =
-                    inventory.getReservedQuantity()
-                            - item.quantity();
+                    inventory.getReservedQuantity() - item.quantity();
 
             if (newReservedQuantity < 0) {
                 throw new IllegalStateException(
@@ -244,8 +246,7 @@ public class ReservationService {
             }
 
             int newQuantity =
-                    inventory.getQuantity()
-                            - item.quantity();
+                    inventory.getQuantity() - item.quantity();
 
             if (newQuantity < 0) {
                 throw new IllegalStateException(
@@ -258,7 +259,7 @@ public class ReservationService {
             inventory.setReservedQuantity(newReservedQuantity);
 
             inventoryRepository.save(inventory);
-        }
+        });
 
         reservation.setStatus(
                 ReservationStatus.ACCEPTED
