@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
-
+import com.pm.inventoryservice.exception.ReservationConflictException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -157,7 +157,7 @@ public class ReservationService {
                             - item.quantity();
 
             if (newReservedQuantity < 0) {
-                throw new IllegalStateException(
+                throw new ReservationConflictException(
                         "Reserved quantity cannot become negative for SKU: "
                                 + item.sku()
                 );

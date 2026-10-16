@@ -30,7 +30,20 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleIllegalStateException(
             IllegalStateException exception
     ) {
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of(
+                        "timestamp", Instant.now(),
+                        "status", 500,
+                        "error", "Internal Server Error",
+                        "message", "An unexpected internal error occurred"
+                ));
+    }
 
+    @ExceptionHandler(ReservationConflictException.class)
+    public ResponseEntity<Map<String, Object>> handleReservationConflict(
+            ReservationConflictException exception
+    ) {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body(Map.of(
