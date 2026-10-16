@@ -36,3 +36,5 @@ springdoc:
 
 bugsnag:
   api-key: ${BUGSNAG_API_KEY:}
+  app-version: ${BUGSNAG_APP_VERSION:0.0.1}
+  release-stage: ${BUGSNAG_RELEASE_STAGE:development}
