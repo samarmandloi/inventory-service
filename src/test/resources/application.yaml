@@ -1,0 +1,30 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5435/inventory_db
+    username: samar
+    password: samar
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+
+bugsnag:
+  api-key: test-api-key
+
+inventory:
+  rabbitmq:
+    variant-queue: test.inventory.variant.queue
+    retry-exchange: test.inventory.retry.exchange
+    retry-queue: test.inventory.variant.retry.queue
+    retry-routing-key: test.variant.retry
+    dlq-exchange: test.inventory.dlq.exchange
+    dlq-queue: test.inventory.variant.dlq
+    dlq-routing-key: test.variant.dlq
+    product-exchange: test.product.exchange
+    product-routing-key: test.variant.event
+    retry-ttl: 5000

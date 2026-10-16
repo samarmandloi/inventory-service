@@ -1,0 +1,28 @@
+databaseChangeLog:
+
+  - changeSet:
+      id: 003-update-reservation-for-multiple-skus
+      author: samar
+
+      changes:
+
+        - dropForeignKeyConstraint:
+            baseTableName: reservation
+            constraintName: fk_reservation_inventory
+
+        - dropColumn:
+            tableName: reservation
+            columnName: inventory_id
+
+        - dropColumn:
+            tableName: reservation
+            columnName: quantity
+
+        - addColumn:
+            tableName: reservation
+            columns:
+              - column:
+                  name: items
+                  type: JSONB
+                  constraints:
+                    nullable: false

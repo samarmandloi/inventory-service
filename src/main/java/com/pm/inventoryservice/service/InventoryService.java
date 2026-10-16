@@ -1,10 +1,16 @@
 package com.pm.inventoryservice.service;
 
 import com.pm.inventoryservice.dto.VariantEventDto;
+import com.pm.inventoryservice.dto.responseDto.InventoryResponse;
+import com.pm.inventoryservice.dto.responseDto.PageResponse;
 import com.pm.inventoryservice.entity.Inventory;
 import com.pm.inventoryservice.repository.InventoryRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -50,6 +56,35 @@ public class InventoryService {
 
         inventoryRepository.deleteByVariantId(
                 event.variantId()
+        );
+    }
+
+    public PageResponse<InventoryResponse> getInventory(
+            List<String> skus,
+            Pageable pageable
+    ) {
+        Page<Inventory> inventoryPage =
+                inventoryRepository.findBySkuIn(
+                        skus,
+                        pageable
+                );
+
+        List<InventoryResponse> content =
+                inventoryPage.getContent()
+                        .stream()
+                        .map(inventory -> new InventoryResponse(
+                                inventory.getSku(),
+                                inventory.getQuantity()
+                                        - inventory.getReservedQuantity()
+                        ))
+                        .toList();
+
+        return new PageResponse<>(
+                content,
+                inventoryPage.getNumber(),
+                inventoryPage.getSize(),
+                inventoryPage.getTotalElements(),
+                inventoryPage.getTotalPages()
         );
     }
 }

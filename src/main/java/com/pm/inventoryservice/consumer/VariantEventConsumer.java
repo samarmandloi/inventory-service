@@ -1,6 +1,5 @@
 package com.pm.inventoryservice.consumer;
 
-import com.pm.inventoryservice.config.RabbitMQConfig;
 import com.pm.inventoryservice.config.RabbitMQProperties;
 import com.pm.inventoryservice.dto.VariantEventDto;
 import com.pm.inventoryservice.service.InventoryService;
@@ -21,8 +20,10 @@ public class VariantEventConsumer {
     private static final String RETRY_COUNT_HEADER =
             "x-inventory-retry-count";
 
+    // Maximum number of retries after the initial attempt.
     private static final int MAX_RETRIES = 3;
 
+    // Retry delay is configured in RabbitMQConfig: 5 seconds.
     private final ObjectMapper objectMapper;
     private final InventoryService inventoryService;
     private final RabbitTemplate rabbitTemplate;

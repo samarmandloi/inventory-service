@@ -24,6 +24,7 @@ spring:
     listener:
       simple:
         acknowledge-mode: auto
+
 inventory:
   rabbitmq:
     variant-queue: ${INVENTORY_VARIANT_QUEUE:inventory.variant.queue}
